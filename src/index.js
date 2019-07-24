@@ -6,7 +6,7 @@ import { init, toggle } from "./app";
   if (global.isInit){
     toggle(global);
   } else {
-    console.log("[GetSelector]: Injected");
+    console.log("Setrow Selector Seçici Yüklendi");
     init(global);
     toggle(global);
   }

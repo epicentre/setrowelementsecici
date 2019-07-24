@@ -9,9 +9,9 @@ const getState = tabId =>
     );
   });
 
-const copySelector = tabId =>
+const selectElement = (tabId) =>
   chrome.tabs.executeScript(tabId, {
-    code: "window.__gs && window.__gs.copyToClipboard()"
+    code: "window.__gs && window.__gs.selectElement()"
   });
 
 const updateIcon = isPressed =>
@@ -20,7 +20,8 @@ const updateIcon = isPressed =>
   });
 
 !(() => {
-  const MENU_ID = "GETSELECTOR";
+  const MENU_ID = "SETROWELEMENTSEC";
+
 
   const toggle = async () => {
     const state = await getState(selectedTabId);
@@ -29,16 +30,16 @@ const updateIcon = isPressed =>
     if (state) {
       chrome.contextMenus.create({
         id: MENU_ID,
-        title: "Copy Unique Selector to Clipboard",
+        title: "Elementi Seç",
         contexts: ["all"],
         documentUrlPatterns: ["*://*/*"],
         onclick: e => {
           if (e.menuItemId !== MENU_ID) {
             return;
           }
-          copySelector(selectedTabId);
+          selectElement(selectedTabId);
         }
-      }); 
+      });
       isMenuAdded = true; 
     } else if (isMenuAdded) {
       chrome.contextMenus.remove(MENU_ID);

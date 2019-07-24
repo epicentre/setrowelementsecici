@@ -1,13 +1,12 @@
-# getselector
+# Setrow Element Seçici
 
 ![](/src/icon_128.png)
 
-Download `GetSelector` from Chrome Web Store: https://chrome.google.com/webstore/detail/get-unique-css-selector/lkfaghhbdebclkklgjhhonadomejckai
+Bu eklenti https://github.com/AntonLapshin/getselector adresindeki repodan düzenlemeler yapılarak oluşturulmuştur.
 
-Find a very short and unique CSS selector of any item on your page. Hover, open context menu by clicking at Right Mouse Button and copy to Clipboard.
 
-The extension helps you to find an unique selector of the DOM elements on any page. Just enable the extension by clicking at the icon, hover an element and copy the unique selector through the context menu! It will be copied to the Clipboard. Easy like that! 
+Setrow "Site Üstü Araç" ürünleri için oluşturulmuş bu eklenti websitelerinde DOM öğelerinin benzersiz Css Selector'unu(querySelector) bulmanızı sağlar.
+
+Eklenti simgesine tıklayarak uzantıyı etkinleştirin, bir öğenin üzerine gelin "Sağ Click" yapın ve içerik menüsünden "Elementi Seç" menüsüne tıklayarak elementin Css Selector'unu kopyalayabilirsiniz. 
 
 ![](./screencast_1.gif)
-
-Based on https://github.com/antonmedv/finder

@@ -1,79 +1,93 @@
 import finder from "@medv/finder";
 import debounce from "lodash/debounce";
 import { addStyle } from "./addStyle";
-import { initMessage, showMessage, hideMessage } from "./info";
-import { copyToClipboard } from "./clipboard";
+import { initActionBar, showActionBar, hideActionBar } from "./actionbar";
+import { STYLES } from './constants';
+import {getCopyButton, getTogglePositionButton, getSelectorTextElem, getSelectParentElButton} from './actionelements';
 
-const clearEl = el => el && el.classList.remove("gs_hover");
+const clearHoveredClass = el => el && el.classList.remove("ses_hover");
+const clearSelectedClass = el => el && el.classList.remove("ses_selected");
 
 export const toggle = global => {
   const state = !global.state;
   global.state = state;
   const action = state ? "addEventListener" : "removeEventListener";
-  document[action]("mouseover", global.selectElement);
-  document[action]("mouseout", global.clearElDebounce);
+  document[action]("mouseover", global.hoverFunc);
+  document[action]("mouseout", global.clearHoveredClassDebounce);
 
-  if (!state) {
-    clearEl(global.selectedEl);
-    global.copiedEl && global.copiedEl.classList.remove("gs_copied");
-    hideMessage(global);
+  if (state) {
+    showActionBar(global);
+  } else {
+    clearHoveredClass(global.hoveredEl);
+    clearSelectedClass(global.selectedEl);
+    hideActionBar(global);
   }
 };
 
 export const init = global => {
   global.isInit = true;
+  global.actionBar = null;
+  global.hoveredEl = null;
   global.selectedEl = null;
 
-  global.clearElDebounce = debounce(
-    () => clearEl(global.selectedEl) && hideMessage(global),
+  global.clearHoveredClassDebounce = debounce(
+    () => clearHoveredClass(global.hoveredEl),
     200
   );
 
-  global.selectElement = debounce(e => {
-    if (global.selectedEl !== e.target) {
-      clearEl(global.selectedEl);
-    }
-    global.selectedEl = e.target;
-    const selectedEl = global.selectedEl;
-    selectedEl.classList.add("gs_hover");
+  global.hoverFunc = debounce(e => {
+    let el = e.target;
 
-    const name = selectedEl.nodeName.toLowerCase();
-    const id = selectedEl.id ? "#" + selectedEl.id : "";
-    const className = selectedEl.className.replace
-      ? selectedEl.className
-          .replace("gs_hover", "")
-          .trim()
-          .replace(/ /gi, ".")
-      : "";
-    const message = name + id + (className.length > 0 ? "." + className : "");
-    showMessage(global, message);
-  }, 200);
-
-  global.copyToClipboard = () => {
-    const { selectedEl } = global;
-    if (!selectedEl) {
+    if (el.closest('.ses_container')) {
       return;
     }
-    global.copiedEl && global.copiedEl.classList.remove("gs_copied");
-    clearEl(selectedEl);
-    const selector = finder(selectedEl);
-    console.log("[GetSelector]: Copied to Clipboard: " + selector, selectedEl);
-    copyToClipboard(selector);
 
-    global.copiedEl = selectedEl;
-    global.copiedEl.classList.add("gs_copied");
+    if (global.hoveredEl !== el) {
+      clearHoveredClass(global.hoveredEl);
+    }
+    global.hoveredEl = el;
+    const hoveredEl = global.hoveredEl;
+    hoveredEl.classList.add("ses_hover");
+  }, 200);
+
+  global.selectElement = (el = global.hoveredEl) => {
+    if (!el) {
+      return;
+    }
+
+    if (global.selectedEl !== el) {
+      clearSelectedClass(global.selectedEl);
+    }
+    global.selectedEl = el;
+    const selectedEl = global.selectedEl;
+    selectedEl.classList.add("ses_selected");
+
+    const selectorText = finder(selectedEl, {
+      root: document.body,
+      className: (name) => name !== 'ses_hover' && name !== 'ses_selected',
+      tagName: (name) => true,
+      attr: (name, value) => false,
+      seedMinLength: 1,
+      optimizedMinLength: 2,
+      threshold: 1000
+    });
+    global.selectorTextElem.value = selectorText;
   };
 
-  addStyle(`
-    .gs_hover {
-      background: repeating-linear-gradient( 135deg, rgba(225, 225, 226, 0.3), rgba(229, 229, 229, 0.3) 10px, rgba(173, 173, 173, 0.3) 10px, rgba(172, 172, 172, 0.3) 20px );
-      box-shadow: inset 0px 0px 0px 1px #d7d7d7;
+  global.selectParentElement = () => {
+    let el = global.selectedEl;
+    let parentElement = el && el.parentElement;
+    if (parentElement) {
+      global.selectElement(parentElement);
     }
+  }
 
-    .gs_copied {
-      background: repeating-linear-gradient( 135deg, rgba(183, 240, 200, 0.3), rgba(192, 231, 194, 0.3) 10px, rgba(124, 189, 126, 0.3) 10px, rgba(137, 180, 129, 0.3) 20px ) !important;
-      box-shadow: inset 0px 0px 0px 1px #c4d9c2 !important;      
-    }
-  `);
-  initMessage(global); 
+  global.copyButton = getCopyButton(global);
+  global.reSelectButton = getTogglePositionButton(global);
+  global.selectorTextElem = getSelectorTextElem(global);
+  global.selectParentElButton = getSelectParentElButton(global);
+
+  addStyle(STYLES);
+  initActionBar(global); 
+  showActionBar(global);
 };
